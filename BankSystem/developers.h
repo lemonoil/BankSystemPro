@@ -52,17 +52,17 @@ class Developers :public QDialog {
 public:
     explicit Developers(QDialog* parent = 0);
 private slots:
-    void LmyGithub();
-    void WtBlog();
-    void XzhQQ();
-    void ChhQQ();
+    void AAAGithub();
+    void BBBBlog();
+    void CCCQQ();
+    void DDDQQ();
     void githubE();
 private:
 
-    ClickLabel* Lmy;
-    ClickLabel* Wt;
-    ClickLabel* Xzh;
-    ClickLabel* Chh;
+    ClickLabel* AAA;
+    ClickLabel* BBB;
+    ClickLabel* CCC;
+    ClickLabel* DDD;
     QLabel* Git;
     ClickLabel* Link;
     QPushButton* ExitBtn;
