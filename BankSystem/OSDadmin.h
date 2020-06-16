@@ -49,6 +49,8 @@ private slots:
     void chgPass();
     void LoAn();
     void TAS();
+    void DEL();
+    void developers();
 
 private:
     QPushButton* addIn;
@@ -92,6 +94,21 @@ private:
     QLineEdit* clientLEd;
     QLineEdit* ActionM;
     QLineEdit* ActionA;
+    QPushButton* RightBtn;
+};
+
+
+class DelADMIN :public QDialog {
+    Q_OBJECT
+public:
+    explicit DelADMIN(QDialog* parent = 0);
+
+private slots:
+    void EventDe();
+private:
+
+    QLabel* clientLbl;
+    QLineEdit* clientEdt;
     QPushButton* RightBtn;
 };
 #endif //

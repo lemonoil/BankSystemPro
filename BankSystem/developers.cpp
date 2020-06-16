@@ -12,7 +12,7 @@ Developers::Developers(QDialog* parent) :QDialog(parent) {
     Xzh = new ClickLabel(tr("许志豪 JS319130"));
     Chh = new ClickLabel(tr("程瀚 JS319114"));
     Git = new QLabel(tr("github: "));
-    Link = new ClickLabel(tr("https://github.com/lemonoil/Bank-System"));
+    Link = new ClickLabel(tr("star!fork!follow!"));
     ExitBtn = new QPushButton(tr("退出"));
     Lmy->setObjectName("Lmy");
     Lmy->setStyleSheet("#Lmy{font-weight:bold;}#Lmy:hover{color:#FF00FF;}");
@@ -66,5 +66,5 @@ void Developers::ChhQQ()
 }
 void Developers::githubE()
 {
-    QDesktopServices::openUrl(QUrl(QLatin1String("https://github.com/lemonoil/Bank-System")));
+    QDesktopServices::openUrl(QUrl(QLatin1String("https://github.com/lemonoil/BankSystemPro")));
 }

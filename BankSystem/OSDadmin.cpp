@@ -4,6 +4,7 @@
 #include "Psql.h"
 #include "login.h"
 #include "logup.h"
+#include "developers.h"
 #pragma execution_character_set("utf-8")
 using namespace std;
 
@@ -55,18 +56,18 @@ void OSDADMIN::InfoOSD() {
     //遍历用户
     QString tmp = "select priority from bankaccount.account where name = '"+UserName + "'";
     ExecSQL(tmp.toStdString().data());
-    tmp = "select distinct name,loan,priority from bankaccount.account where priority < "+SqlRes[0];
+    tmp = "select distinct name,loan,priority,total from bankaccount.account where priority < "+SqlRes[0];
     ExecSQL(tmp.toStdString().data());
     QVector<QString> Vname = SqlRes;
-    tmp = "select distinct name,loan,priority from bankaccount.account where name ='" + UserName +"'";
+    tmp = "select distinct name,loan,priority,total from bankaccount.account where name ='" + UserName +"'";
     ExecSQL(tmp.toStdString().data());
     for (int i = SqlRes.size()-1; i >=0 ; --i)
         Vname.push_front(SqlRes[i]);
-    for (int i = 0; i < Vname.size() / 3; ++i) {
-        standItemModel->setItem(i, 0, new QStandardItem(Vname[0 + i * 3]));
-        standItemModel->setItem(i, 1, new QStandardItem(getTotal(Vname[i * 3])));
-        standItemModel->setItem(i, 2, new QStandardItem(Vname[1 + i * 3]));
-        standItemModel->setItem(i, 3, new QStandardItem(Vname[2 + i * 3]));
+    for (int i = 0; i < Vname.size() / 4; ++i) {
+        standItemModel->setItem(i, 0, new QStandardItem(Vname[0 + i * 4]));
+        standItemModel->setItem(i, 1, new QStandardItem(Vname[3 + i * 4]));
+        standItemModel->setItem(i, 2, new QStandardItem(Vname[1 + i * 4]));
+        standItemModel->setItem(i, 3, new QStandardItem(Vname[2 + i * 4]));
     }
     tableView->setModel(standItemModel);
 
@@ -94,14 +95,18 @@ void OSDADMIN::InfoOSD() {
     QPushButton* tmpC = changPass;
     QPushButton* tmpD = new QPushButton("贷款情况查询");
     QPushButton* tmpE = exitBtn;
+    QPushButton* tmpH = new QPushButton("开发人员");
     QPushButton* tmpF = new QPushButton("转账调整");
-    mainLayout->addWidget(tableView, 0, 1, 7, 1);
+    QPushButton* tmpG = new QPushButton("删除账户");
+    mainLayout->addWidget(tableView, 0, 1, 10, 1);
     mainLayout->addWidget(tmpA, 0, 0);
     mainLayout->addWidget(tmpB, 3, 0);
     mainLayout->addWidget(tmpC, 6, 0);
     mainLayout->addWidget(tmpD, 0, 2);
     mainLayout->addWidget(tmpF, 3, 2);
-    mainLayout->addWidget(tmpE, 6, 2);
+    mainLayout->addWidget(tmpE, 9, 2);
+    mainLayout->addWidget(tmpG, 6, 2);
+    mainLayout->addWidget(tmpH, 9, 0);
     tmpA->setObjectName("A");
     tmpA->setStyleSheet("#A{background-color: #f8fbaf;}#A:hover{background-color: #fdfedf;}");
     tmpB->setObjectName("B");
@@ -114,6 +119,10 @@ void OSDADMIN::InfoOSD() {
     tmpF->setStyleSheet("#F{background-color: #f8fbaf;}#F:hover{background-color: #fdfedf;}");
     tmpE->setObjectName("exit");
     tmpE->setStyleSheet("#exit{background-color: #ff5d5d;font-weight:bold;color:#e8e8e8;}#exit:hover{background-color: #ff8989;font-weight:bold;color:#e8e8e8;}");
+    tmpH->setObjectName("H");
+    tmpH->setStyleSheet("#H{background-color: #f8fbaf;}#H:hover{background-color: #fdfedf;}");
+    tmpG->setObjectName("G");
+    tmpG->setStyleSheet("#G{background-color: #f8fbaf;}#G:hover{background-color: #fdfedf;}");
 
     mainLayout->setColumnMinimumWidth(1, 500);
     this->setLayout(mainLayout);
@@ -123,6 +132,8 @@ void OSDADMIN::InfoOSD() {
     connect(exitBtn, SIGNAL(clicked()), this, SLOT(close()));
     connect(tmpD, SIGNAL(clicked()), this, SLOT(LoAn()));
     connect(tmpF, SIGNAL(clicked()), this, SLOT(TAS()));
+    connect(tmpG, SIGNAL(clicked()), this, SLOT(DEL()));
+    connect(tmpH, SIGNAL(clicked()), this, SLOT(developers()));
 }
 
 void OSDADMIN::addInfo() {
@@ -135,7 +146,12 @@ void OSDADMIN::chgPass() {
     Ch_part = new ChangePassADMIN;
     Ch_part->exec();
 }
-
+void OSDADMIN::developers()
+{
+    Developers* De;
+    De = new Developers;
+    De->exec();
+}
 void OSDADMIN::LoAn() {
     LAPADMIN* LAP_part;
     LAP_part = new LAPADMIN;
@@ -148,6 +164,14 @@ void OSDADMIN::TAS()
     Bk = new TransADMIN;
     Bk->exec();
 }
+
+void OSDADMIN::DEL()
+{
+    DelADMIN* Bk;
+    Bk = new DelADMIN;
+    Bk->exec();
+}
+
 
 ADDMoneyADMIN::ADDMoneyADMIN(QDialog* parent) :QDialog(parent) {
     this->setWindowTitle(tr("调整用户收入/支出"));
@@ -215,7 +239,7 @@ void ADDMoneyADMIN::EventAd() {
     else
         tmp = "INSERT INTO bankaccount.account (time,balance,pass,priority,name,id,income,expenditure,loan) VALUES ('" + currentTime + "'," + strM.toStdString() + ", '" + SqlRes[0].toStdString() + "'," + SqlRes[2].toStdString() + ", '" + Client.toStdString() + "'," + SqlRes[1].toStdString() + ",0,1," + SqlRes[3].toStdString() + ")";
     ExecSQL(tmp.c_str());
-    
+    getTotal(clientLEd->text());
     QMessageBox::warning(this, tr("成功！"), tr("调整记录成功"), QMessageBox::Yes);
     accept();
 }
@@ -276,5 +300,43 @@ void ChangePassADMIN::EventCh() {
     tmp = "UPDATE bankaccount.account SET pass = '" + ActionM->text().toStdString() + "' WHERE name = '" + Client.toStdString() + "'";
     ExecSQL(tmp.c_str());
     QMessageBox::warning(this, tr("成功！"), tr("已修改密码"), QMessageBox::Yes);
+    accept();
+}
+
+DelADMIN::DelADMIN(QDialog* parent) :QDialog(parent) {
+    this->setWindowTitle(tr("删除账户"));
+    this->resize(200, 100);
+
+    clientLbl = new QLabel(tr("用户名"));
+
+    clientEdt = new QLineEdit;
+    clientEdt->setText(tr(""));
+    RightBtn = new QPushButton(tr("确定"));
+
+    QGridLayout* grid_layout = new QGridLayout(this);
+    grid_layout->addWidget(clientLbl, 0, 0);
+    grid_layout->addWidget(clientEdt, 0, 1);
+    grid_layout->addWidget(RightBtn, 1, 1);
+    RightBtn->setObjectName("right");
+    RightBtn->setStyleSheet("#right{background-color: #bcffb9;font-weight:bold;}");
+
+    connect(RightBtn, SIGNAL(clicked()), this, SLOT(EventDe()));
+}
+void DelADMIN::EventDe() {
+    if (clientEdt->text().isEmpty()) {
+        QMessageBox::warning(this, tr("错误！"), tr("输入不完整"), QMessageBox::Yes);
+        return;
+    }
+    string tmp;
+    Client = clientEdt->text();
+    tmp = "select pass from bankaccount.account where name = '" + Client.toStdString() + "' AND priority < " + QString::number(priRight).toStdString();
+    ExecSQL(tmp.c_str());
+    if (SqlRes.isEmpty()) {
+        QMessageBox::warning(this, tr("错误！"), tr("该用户不存在"), QMessageBox::Yes);
+        return;
+    }
+    tmp = "DELETE FROM bankaccount.account WHERE name = '" + Client.toStdString() + "'";
+    ExecSQL(tmp.c_str());
+    QMessageBox::warning(this, tr("成功！"), tr("已删除账户"), QMessageBox::Yes);
     accept();
 }

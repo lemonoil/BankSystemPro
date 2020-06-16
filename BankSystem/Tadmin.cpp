@@ -41,7 +41,25 @@ TransADMIN::TransADMIN(QDialog* parent) :QDialog(parent)
 	connect(RightBtn, SIGNAL(clicked()), this, SLOT(EventTAS()));
 	connect(ExitBtn, SIGNAL(clicked()), this, SLOT(close()));
 }
+QString getTotal(QString UserN) {
+	QString tmp = "select time,balance,income,expenditure from bankaccount.account where name = '" + UserN + "' order by time";
+	ExecSQL(tmp.toStdString().data());
+	double tot = 0.0;
 
+	for (int i = 0; i < SqlRes.size() / 4; ++i) {
+		int Jd = SqlRes[2 + i * 4].toInt() + SqlRes[3 + i * 4].toInt();
+		if (Jd == 0) tot = SqlRes[1].toDouble();
+		else if (SqlRes[2 + i * 4].toInt() == 1) {
+			tot = tot + SqlRes[1 + i * 4].toDouble();
+		}
+		else {
+			tot = tot - SqlRes[1 + i * 4].toDouble();
+		}
+	}
+	tmp = "UPDATE bankaccount.account set total = " + QString::number(tot, 10, 6) + " where name = '" + UserN + "'";
+	ExecSQL(tmp.toStdString().data());
+	return QString::number(tot, 10, 6);
+}
 void TransADMIN::EventTAS()
 {
 	if (clientLEd->text().isEmpty() || ActionM1->text().isEmpty() || ActionM2->text().isEmpty()) {
@@ -88,12 +106,15 @@ void TransADMIN::EventTAS()
 
 	tmp = "select pass,id,priority,loan from bankaccount.account where name = '" + Client.toStdString() + "'";
 	ExecSQL(tmp.c_str());
-	tmp = "INSERT INTO bankaccount.account (balance,pass,priority,time,name,id,income,expenditure) VALUES ("
+	tmp = "INSERT INTO bankaccount.account (balance,pass,priority,time,name,id,income,expenditure,loan) VALUES ("
 		+ strM2.toStdString() + ", '" + SqlRes[0].toStdString() + "'," + SqlRes[2].toStdString() + ", '"
 		+ currentTime + "', '" + Client.toStdString() + "'," + SqlRes[1].toStdString() + ",0,1," + SqlRes[3].toStdString() + ")";
 	ExecSQL(tmp.c_str());
 
 	QMessageBox::warning(this, tr("成功！"), tr("转账成功"), QMessageBox::Yes);
+	getTotal(Client);
+	getTotal(strM1);
+	qDebug() << strM1;
 	accept();
 
 }

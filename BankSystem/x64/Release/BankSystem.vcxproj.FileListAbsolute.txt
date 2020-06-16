@@ -1,3 +1,0 @@
-D:\BankSystem\BankSystem\x64\Release\BankSystem.exe
-C:\Users\hp\Documents\Tencent Files\846938219\FileRecv\BankSystem 6.13\BankSystem\x64\Release\BankSystem.exe
-C:\Users\hp\Documents\Tencent Files\846938219\FileRecv\BankSystem 6.15.1\BankSystem\x64\Release\BankSystem.exe

@@ -10,6 +10,25 @@ using namespace std;
 
 double loanM = 0.0;
 string currentTime;
+QString getTotal(QString UserN) {
+    QString tmp = "select time,balance,income,expenditure from bankaccount.account where name = '" + UserN + "' order by time";
+    ExecSQL(tmp.toStdString().data());
+    double tot = 0.0;
+
+    for (int i = 0; i < SqlRes.size() / 4; ++i) {
+        int Jd = SqlRes[2 + i * 4].toInt() + SqlRes[3 + i * 4].toInt();
+        if (Jd == 0) tot = SqlRes[1].toDouble();
+        else if (SqlRes[2 + i * 4].toInt() == 1) {
+            tot = tot + SqlRes[1 + i * 4].toDouble();
+        }
+        else {
+            tot = tot - SqlRes[1 + i * 4].toDouble();
+        }
+    }
+    tmp = "UPDATE bankaccount.account set total = " + QString::number(tot, 10, 6) + "where name = '" + UserN + "'";
+    ExecSQL(tmp.toStdString().data());
+    return QString::number(tot, 10, 6);
+}
 
 LAPADMIN::LAPADMIN(QDialog* parent) :QDialog(parent) {
     this->setWindowTitle(tr("用户贷款状况查询"));
@@ -73,4 +92,6 @@ void LAPADMIN::checkLoan() {
     for (int i = 0;i < T;i++) loanM = loanM * (1.0 + rate);
     loanLEd->setText(QString::number(loanM, 10, 4));
 
+    getTotal(clientLEd->text());
+    accept();
 }
